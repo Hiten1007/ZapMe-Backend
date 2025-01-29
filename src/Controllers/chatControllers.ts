@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 export const displayZaps = async (req: Request, res: Response) => {
     try {
         console.log("yes")
+        res.status(201).json({message:"yes"})
     }
     catch(error) {
 

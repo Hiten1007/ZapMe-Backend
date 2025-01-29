@@ -2,7 +2,6 @@ import {  Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthPayload, AuthenticatedRequest } from '../interfaces';
 
-const JWT_SECRET = process.env.JWT_SECRET as string; // Ensure JWT_SECRET is not undefined
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const token = req.cookies.jwtToken; // Read the token from cookies
@@ -12,12 +11,19 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
      return;
   }
 
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
+
+    console.log(process.env.JWT_SECRET)
+    
+    console.log("yess")
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as AuthPayload;
+    
     req.user = decoded;
     next(); // Proceed to the next middleware or route
   } catch (error) {
      res.status(403).json({ message: 'Invalid token' });
+     console.error(error)
      return;
   }
 };
