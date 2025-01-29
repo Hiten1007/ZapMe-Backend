@@ -1,12 +1,17 @@
 import express from 'express';
 import userRoutes from './Routes/UserRoutes';
+import chatRoutes from './Routes/chatRoutes'
 import { Request, Response} from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
+
 
 
 const app = express();
 
 app.use(cors())
+
+app.use(cookieParser())
 
 
 app.use(express.json());
@@ -19,5 +24,7 @@ app.use('/api', (req: Request, res: Response, next) => {
 
 // Use the userRoutes for '/api/users' route
 app.use('/api/users' ,userRoutes)
+
+app.use('/api/content', chatRoutes)
 
 export default app;
