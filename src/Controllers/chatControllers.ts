@@ -33,3 +33,12 @@ export const displayarch = async( req: Request, res : Response) => {
 
     }
 }
+
+export const displaysearch = async( req : Request, res : Response) => {
+    try{
+
+    }
+    catch(error){
+        
+    }
+}

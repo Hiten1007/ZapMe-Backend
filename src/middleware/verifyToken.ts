@@ -4,7 +4,7 @@ import { AuthPayload, AuthenticatedRequest } from '../interfaces';
 
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const token = req.cookies.jwtToken; // Read the token from cookies
+  const token = req.cookies.jwtToken; 
 
   if (!token) {
      res.status(401).json({ message: 'Unauthorized: No token provided' });
@@ -20,7 +20,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as AuthPayload;
     
     req.user = decoded;
-    next(); // Proceed to the next middleware or route
+    next();
   } catch (error) {
      res.status(403).json({ message: 'Invalid token' });
      console.error(error)
