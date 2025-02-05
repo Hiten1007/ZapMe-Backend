@@ -94,11 +94,12 @@ export const logIn = async (req: Request, res: Response) => {
       { expiresIn: "24h" }
     );
 
-    res.cookie('jwtToken', token, {
+    res.cookie('token', token, {
       httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-      sameSite: 'strict', // Protect against CSRF attacks
+      secure: process.env.NODE_ENV !== 'production', // Use secure cookies in production
+      sameSite: 'lax', // Protect against CSRF attacks
       maxAge: 24 * 60 * 60 * 1000, // Token expiration (24 hours in ms)
+ 
     });
 
     // Respond with success

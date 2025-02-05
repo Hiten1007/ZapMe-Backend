@@ -22,7 +22,7 @@ model User {
   password  String
   chats     ChatUser[] // This stores the many-to-many relation between User and Chat
   messages  Message[]  // Messages sent by the user
-  about     String
+  about     String     @default("Zap me a message!") 
   attributes String[]
 }
 

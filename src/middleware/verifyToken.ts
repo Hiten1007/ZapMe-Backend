@@ -4,8 +4,8 @@ import { AuthPayload, AuthenticatedRequest } from '../interfaces';
 
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const token = req.cookies.jwtToken; 
-
+  
+  const token = req.cookies.token;
   if (!token) {
      res.status(401).json({ message: 'Unauthorized: No token provided' });
      return;

@@ -36,9 +36,31 @@ export const displayarch = async( req: Request, res : Response) => {
 
 export const displaysearch = async( req : Request, res : Response) => {
     try{
+        const query = req.query.q as string;
+        if(!query){
+            res.status(400).json({
+                message: "Query is required"
+            })
+        }
 
+        const users = await prisma.user.findMany({
+            where: {
+                username : {
+                    contains : query,
+                    mode : 'insensitive'
+                },
+            },
+            take : 5,
+            select: {
+                id: true,
+                username: true
+            }
+        })
+
+        res.status(200).json(users)
     }
     catch(error){
-        
+        console.error('Error fetching users :  ', error)
+        res.status(500).json({ message : "Internal server error"})
     }
 }

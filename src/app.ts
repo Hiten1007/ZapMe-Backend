@@ -9,9 +9,16 @@ import cookieParser from 'cookie-parser'
 
 const app = express();
 
-app.use(cors())
-
 app.use(cookieParser())
+
+
+const corsOptions = {
+    origin: 'http://localhost:5173', // Replace with your frontend's origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  };
+
+app.use(cors(corsOptions))
+
 
 
 app.use(express.json());
