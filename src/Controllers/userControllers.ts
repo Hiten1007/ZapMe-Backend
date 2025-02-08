@@ -48,6 +48,7 @@ export const signUp = async (req: Request, res: Response,) => {
         email: newUser.email,
         username: newUser.username,
         name: newUser.name,
+       
       },
     });
   } catch (error) {

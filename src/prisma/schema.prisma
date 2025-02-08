@@ -24,6 +24,7 @@ model User {
   messages  Message[]  // Messages sent by the user
   about     String     @default("Zap me a message!") 
   attributes String[]
+  imageUrl String @default("https://i.ibb.co/YThLBRYP/image-copy-7.png")
 }
 
 model Chat {

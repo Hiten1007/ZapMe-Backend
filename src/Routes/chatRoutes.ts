@@ -1,10 +1,12 @@
 import { Router } from 'express'
 import { authenticateToken } from '../middleware/verifyToken'
-import { displayZaps, displayZapplets, displayarch, displaysearch } from '../Controllers/chatControllers'
+import { displayZaps, displayZapplets, displayarch, displaysearch, displayImg } from '../Controllers/chatControllers'
 
 const router = Router()
 
 router.use(authenticateToken)
+
+router.get('/',displayImg)
 
 router.get('/zaps', displayZaps )
 router.get('/zapplets', displayZapplets)
