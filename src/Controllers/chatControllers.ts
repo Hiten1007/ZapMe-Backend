@@ -54,7 +54,9 @@ export const displaysearch = async( req : Request, res : Response) => {
             take : 5,
             select: {
                 id: true,
-                username: true
+                username: true,
+                imageUrl : true,
+                name : true
             }
         })
 
