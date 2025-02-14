@@ -13,10 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
 export const signUp = async (req: Request, res: Response,) => {
   try {
-
-
-
-    const validatedData = userSignupSchema.parse(req.body);
+const validatedData = userSignupSchema.parse(req.body);
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);

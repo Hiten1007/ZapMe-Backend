@@ -6,9 +6,9 @@ const router = Router()
 
 router.use(authenticateToken)
 
-router.get('/',displayImg)
+router.get('/',displayImg,  displayZaps)
 
-router.get('/zaps', displayZaps )
+
 router.get('/zapplets', displayZapplets)
 router.get('/archived', displayarch)
 router.get('/search', displaysearch)

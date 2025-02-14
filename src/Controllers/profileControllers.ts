@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import {  Response} from 'express'
 import { AuthenticatedRequest } from '../interfaces'
 import { updateUserInfoSchema } from '../schemas/updateUserInfo'
+import axios from 'axios'
 
 const prisma = new PrismaClient()
 
@@ -72,3 +73,45 @@ export const updateUserInfo = async (req : AuthenticatedRequest, res : Response)
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const updatePhoto = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    // Check if a file was uploaded (Multer populates req.file)
+    if (!req.file) {
+      res.status(400).json({ message: 'No file uploaded' });
+      return;
+    }
+    console.log("fileis")
+
+    // Convert the file buffer to a base64-encoded string
+    const base64Image = req.file.buffer.toString('base64');
+
+    // Prepare form data to send to ImgBB
+    const formData = new URLSearchParams();
+    formData.append('key', process.env.IMGBB_API_KEY!);  // Ensure your API key is set in .env
+    formData.append('image', base64Image);
+
+    // Upload the image to ImgBB
+    const imgbbResponse = await axios.post('https://api.imgbb.com/1/upload', formData);
+
+    // Extract the public URL from ImgBB's response
+    const imageUrl = imgbbResponse.data?.data?.url;
+    if (!imageUrl) {
+    res.status(500).json({ message: 'Failed to obtain image URL from ImgBB' });
+    return;
+    }
+
+    // Update the user's profile image in the database
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user?.userId },
+      data: { imageUrl },
+      select: { imageUrl: true }
+    });
+
+    res.status(200).json({ updatedUser });
+  } catch (error) {
+    console.error("Error updating profile photo:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+    return;
+  }
+};

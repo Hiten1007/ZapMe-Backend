@@ -4,10 +4,28 @@ import { AuthenticatedRequest } from '../interfaces'
 
 const prisma = new PrismaClient()
 
-export const displayZaps = async (req: Request, res: Response) => {
+export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        const user = req.user;
+        const chats = await prisma.chat.findMany({
+            where: {
+              users: {
+                some: { userId: user?.userId }
+              }, 
+              isGroup : false
+            },
+            orderBy: {
+              messages: {
+                _max: { createdAt: 'desc' }
+              } as any
+            },
+            include: {
+              messages: true,
+              users: true,
+            },
+          });
         console.log("yes")
-        res.status(201).json({message:"yes"})
+        res.status(201).json(chats)
     }
     catch(error) {
 
