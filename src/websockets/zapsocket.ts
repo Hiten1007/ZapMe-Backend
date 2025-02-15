@@ -18,9 +18,18 @@ export const register = async (data: any, senderId: number): Promise<Chat> => {
   let chat = await prisma.chat.findFirst({
     where: {
       isGroup: false,
-      users: {
-        some: { userId: senderId }
-      }
+      AND: [
+        {
+          users: {
+            some: { userId: senderId }
+          }
+        },
+        {
+          users: {
+            some: { userId: receiverId }
+          }
+        }
+      ]
     },
     include: {
       users: true,
@@ -65,6 +74,11 @@ export const newMessage = async (chat: Chat, senderId: number, content: string) 
       userId: senderId,
       chatId: chat.id
     }
+  });
+
+  await prisma.chat.update({
+    where: { id: chat.id },
+    data: { latestMessageAt: new Date() }
   });
   return newMsg;
 }

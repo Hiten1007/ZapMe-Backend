@@ -34,6 +34,7 @@ model Chat {
   groupName String?    // Optional custom name for group chats
   messages  Message[]  // Messages within the chat
   users     ChatUser[] // Many-to-many relation to User through the join table
+  latestMessageAt DateTime? @updatedAt
 }
 
 model Message {

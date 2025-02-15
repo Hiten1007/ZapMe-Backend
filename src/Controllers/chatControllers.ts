@@ -9,26 +9,48 @@ export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
         const user = req.user;
         const chats = await prisma.chat.findMany({
             where: {
-              users: {
-                some: { userId: user?.userId }
-              }, 
-              isGroup : false
+                users: {
+                    some: { userId: user?.userId }
+                },
+                isGroup: false
             },
             orderBy: {
-              messages: {
-                _max: { createdAt: 'desc' }
-              } as any
+                latestMessageAt: 'desc'  // Order chats by latest message timestamp
             },
             include: {
-              messages: true,
-              users: true,
-            },
-          });
+                messages: {
+                    orderBy: {
+                        createdAt: 'desc'  // Ensure messages are sorted inside chats
+                    },
+                    take: 1  // Fetch only the latest message for sorting accuracy
+                },
+                users: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,  // Get user's ID
+                                username: true,  // Get username
+                                imageUrl: true , // Get profile image
+                                name:true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Filter out the current user from the users array and return only the other user
+        const formattedChats = chats.map(chat => ({
+            ...chat,
+            otherUser: chat.users
+                .map(u => u.user)  // Extract user object
+                .find(u => u.id !== user?.userId)  // Get the other user
+        }));
         console.log("yes")
-        res.status(201).json(chats)
+        res.status(201).json(formattedChats)
     }
     catch(error) {
-
+        console.error(error)
     }
 }
 

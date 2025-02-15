@@ -81,6 +81,11 @@ export const sendGroupMessage = async (
         chatId
       }
     });
+
+    await prisma.chat.update({
+      where: { id: chatId },
+      data: { latestMessageAt: new Date() }
+    });
     
     return newMessage;
 };

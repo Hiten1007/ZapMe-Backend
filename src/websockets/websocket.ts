@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import jwt from 'jsonwebtoken';
 import { PrismaClient, Chat } from '@prisma/client';
-import { AuthPayload } from '../interfaces'; // Ensure AuthPayload is defined (e.g., { userId: number, ... })
+import { AuthPayload } from '../interfaces';
 
 import { newMessage, register } from './zapsocket';
 import { addMemberToChat, createGroupChat } from './zappletsocket';
@@ -13,7 +13,6 @@ console.log("wsHandler loaded");
 export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) => {
   console.log("WebSocket upgrade request received.");
 
-  // Manually parse cookies from req.headers.cookie (since upgrade requests bypass Express middleware)
   const cookieHeader = req.headers.cookie;
   if (!cookieHeader) {
     console.error("No cookie header found.");
@@ -21,7 +20,6 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
     return;
   }
 
-  // Very basic cookie parsing (assuming the cookie format "token=JWT")
   const cookies = cookieHeader.split(';').reduce((acc: Record<string, string>, cookieStr) => {
     const [key, value] = cookieStr.trim().split('=');
     acc[key] = value;
@@ -48,58 +46,79 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
   const senderId = decoded.userId;
   console.log(`Authenticated WebSocket for user ${senderId}`);
 
-  // Listen for messages from the client
-  let chat: Chat | null = null;
-
   ws.on('message', async (data) => {
     try {
-      // Convert RawData to string if needed
       const messageStr = typeof data === 'string' ? data : data.toString();
-      console.log(messageStr)
+      console.log(messageStr);
       const message = JSON.parse(messageStr);
 
-      
+      let chat: Chat | null = null;
+
       switch (message.type) {
         case "register":
-          // "register" expects { receiverId, content } in message.data.
-          // register() should return a Chat.
-          const userId = parseInt(message.userId)
-          chat = await register(userId, senderId);
-          console.log(chat)
-          ws.send(JSON.stringify(chat))
+          chat = await register(parseInt(message.userId), senderId);
+          console.log(chat);
+          ws.send(JSON.stringify(chat));
           break;
+
         case "onemessage":
-          // "onemessage" expects that chat is already registered and includes a "content" property.
-          // We pass chat, senderId, and message.content.
-          console.log(chat)
+          chat = await prisma.chat.findFirst({
+            where: {
+              chatId: {
+                in: [
+                  `${senderId}-${message.userId}`,
+                  `${message.userId}-${senderId}`
+                ]
+              },
+              isGroup: false
+            },
+          })
+
           if (!chat) {
-            console.error("No chat found to send a message.");
+            console.error("Chat not found.");
             ws.send(JSON.stringify({ error: "Chat not found" }));
             return;
           }
-          
+
           const newmsg = await newMessage(chat, senderId, message.content);
           ws.send(JSON.stringify({ type: 'newMessage', message: newmsg }));
           break;
-        case "createGroup":
-            // Expect message.data to include an array of member IDs and optionally a groupName.
-            // For example: { memberIds: [1, 2, 3], groupName: "Friends" }
-            chat = await createGroupChat(message.data.memberIds, message.data.groupName);
-            ws.send(JSON.stringify({ type: "groupCreated", chat }));
-            break;  
-        case "groupMessage":
 
-        chat = await createGroupChat(message.data.memberIds, message.data.groupName);
-        ws.send(JSON.stringify({ type: "groupCreated", chat }));
+        case "createGroup":
+          chat = await createGroupChat(message.data.memberIds, message.data.groupName);
+          ws.send(JSON.stringify({ type: "groupCreated", chat }));
           break;
-        case "addMember":
+
+        case "groupMessage":
+          chat = await prisma.chat.findUnique({
+            where: { chatId: message.chatId },
+          });
+
           if (!chat) {
-            console.error("No chat found to send a message.");
+            console.error("Group chat not found.");
+            ws.send(JSON.stringify({ error: "Group chat not found" }));
+            return;
+          }
+
+          const groupMsg = await newMessage(chat, senderId, message.content);
+          ws.send(JSON.stringify({ type: 'groupMessage', message: groupMsg }));
+          break;
+
+        case "addMember":
+          chat = await prisma.chat.findUnique({
+            where: { chatId: message.chatId },
+          });
+
+          if (!chat) {
+            console.error("Chat not found.");
             ws.send(JSON.stringify({ error: "Chat not found" }));
             return;
           }
-          chat = await addMemberToChat(chat.id, message.newUserId)
+
+          chat = await addMemberToChat(chat.id, message.newUserId);
           ws.send(JSON.stringify({ type: "memberAdded", chat }));
+          break;
+
         default:
           console.log("Unknown message type");
       }
