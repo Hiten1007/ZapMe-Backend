@@ -115,3 +115,25 @@ export const updatePhoto = async (req: AuthenticatedRequest, res: Response) => {
     return;
   }
 };
+
+export const showOtherProfile = async (req : AuthenticatedRequest, res : Response) => {
+    try{
+        const userId = parseInt(req.params.userid);
+        console.log(userId)
+
+        const userInfo = await prisma.user.findFirst({
+            where :{ id : userId}
+        })
+        console.log("yes")
+        res.status(200).json({
+            userInfo
+        })
+        console.log("yes")
+    }
+    catch(error){
+        res.status(500).json({
+            messgae:"Internal server error"
+        })
+    }
+   
+}

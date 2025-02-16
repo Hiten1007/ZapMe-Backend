@@ -12,7 +12,7 @@ const server = http.createServer(app);
 
 
 
-const wss = new WebSocketServer({ server });
+export const wss = new WebSocketServer({ server });
 
 
 

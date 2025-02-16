@@ -75,8 +75,9 @@ export const displayarch = async( req: Request, res : Response) => {
     }
 }
 
-export const displaysearch = async( req : Request, res : Response) => {
+export const displaysearch = async( req : AuthenticatedRequest, res : Response) => {
     try{
+        const user = req.user
         const query = req.query.q as string;
         if(!query){
             res.status(400).json({
@@ -99,8 +100,8 @@ export const displaysearch = async( req : Request, res : Response) => {
                 name : true
             }
         })
-
-        res.status(200).json(users)
+        const filtered = [...users].filter(u=> u.id !== user?.userId)
+        res.status(200).json(filtered)
     }
     catch(error){
         console.error('Error fetching users :  ', error)
@@ -131,3 +132,21 @@ export const displayImg = async( req : AuthenticatedRequest, res : Response) => 
         res.status(500).json({ message : "Internal server error"})
     }
 }
+
+export const getMessages = async (req: Request, res: Response) => {
+  try {
+    const chatId = parseInt(req.params.chatId);
+
+
+    const messages = await prisma.message.findMany({
+      where: { chatId },
+      orderBy: { createdAt: "asc" },
+    });
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+

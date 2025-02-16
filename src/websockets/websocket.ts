@@ -3,7 +3,7 @@ import { IncomingMessage } from 'http';
 import jwt from 'jsonwebtoken';
 import { PrismaClient, Chat } from '@prisma/client';
 import { AuthPayload } from '../interfaces';
-
+import { wss } from '../server';
 import { newMessage, register } from './zapsocket';
 import { addMemberToChat, createGroupChat } from './zappletsocket';
 
@@ -44,6 +44,7 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
   }
 
   const senderId = decoded.userId;
+  (ws as any).userId = senderId;
   console.log(`Authenticated WebSocket for user ${senderId}`);
 
   ws.on('message', async (data) => {
@@ -53,36 +54,66 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
       const message = JSON.parse(messageStr);
 
       let chat: Chat | null = null;
-
+      wss.clients.forEach((client: WebSocket) => {
+        console.log("Connected client:", (client as any).userId);
+      });
       switch (message.type) {
         case "register":
           chat = await register(parseInt(message.userId), senderId);
           console.log(chat);
-          ws.send(JSON.stringify(chat));
+          ws.send(JSON.stringify({ type: 'register', id: chat.id }));
           break;
 
-        case "onemessage":
-          chat = await prisma.chat.findFirst({
-            where: {
-              chatId: {
-                in: [
-                  `${senderId}-${message.userId}`,
-                  `${message.userId}-${senderId}`
-                ]
+          case "onemessage":
+            chat = await prisma.chat.findFirst({
+              where: {
+                chatId: {
+                  in: [
+                    `${senderId}-${message.userId}`,
+                    `${message.userId}-${senderId}`
+                  ]
+                },
+                isGroup: false
               },
-              isGroup: false
-            },
-          })
-
-          if (!chat) {
-            console.error("Chat not found.");
-            ws.send(JSON.stringify({ error: "Chat not found" }));
-            return;
-          }
-
-          const newmsg = await newMessage(chat, senderId, message.content);
-          ws.send(JSON.stringify({ type: 'newMessage', message: newmsg }));
-          break;
+            });
+          
+            if (!chat) {
+              console.error("Chat not found.");
+              ws.send(JSON.stringify({ error: "Chat not found" }));
+              return;
+            }
+          
+            const newmsg = await newMessage(chat, senderId, message.content);
+            console.log('New message created:', newmsg);
+          
+            console.log("Sender ID:", senderId);
+            console.log("Recipient ID (from message.userId):", message.userId);
+          
+            // Broadcast the message to both the sender and the recipient
+            wss.clients.forEach((client: WebSocket) => {
+              if (client.readyState === WebSocket.OPEN) {
+                // Log each client's userId
+                console.log("Client userId:", (client as any).userId);
+          
+                // Send to the sender
+                if (String((client as any).userId) === String(senderId)) {
+                  console.log("Sending message to sender:", senderId);
+                  client.send(JSON.stringify({
+                    type: 'onemessage',
+                    message: newmsg
+                  }));
+                }
+                // Send to the recipient
+                if (String((client as any).userId) === String(message.userId)) {
+                  console.log("Sending message to recipient:", message.userId);
+                  client.send(JSON.stringify({
+                    type: 'onemessage',
+                    message: newmsg
+                  }));
+                }
+              }
+            });
+            break;
 
         case "createGroup":
           chat = await createGroupChat(message.data.memberIds, message.data.groupName);
