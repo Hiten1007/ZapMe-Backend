@@ -12,7 +12,6 @@ export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
                 users: {
                     some: { userId: user?.userId }
                 },
-                isGroup: false
             },
             orderBy: {
                 latestMessageAt: 'desc'  // Order chats by latest message timestamp
@@ -46,7 +45,6 @@ export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
                 .map(u => u.user)  // Extract user object
                 .find(u => u.id !== user?.userId)  // Get the other user
         }));
-        console.log("yes")
         res.status(201).json(formattedChats)
     }
     catch(error) {
@@ -54,26 +52,6 @@ export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
     }
 }
 
-export const displayZapplets = async( req : Request, res : Response) => {
-    try{
-
-    }
-    catch(error){
-
-
-    }
-}
-
-export const displayarch = async( req: Request, res : Response) => {
-
-    try{
-
-    }
-    catch(error){
-
-
-    }
-}
 
 export const displaysearch = async( req : AuthenticatedRequest, res : Response) => {
     try{

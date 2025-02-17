@@ -30,8 +30,6 @@ model User {
 model Chat {
   id        Int        @id @default(autoincrement())
   chatId    String     @unique
-  isGroup   Boolean    @default(false) // distinguishes group chats from one-to-one chats
-  groupName String?    // Optional custom name for group chats
   messages  Message[]  // Messages within the chat
   users     ChatUser[] // Many-to-many relation to User through the join table
   latestMessageAt DateTime? @updatedAt

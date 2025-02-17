@@ -27,7 +27,6 @@ const validatedData = userSignupSchema.parse(req.body);
         password: hashedPassword,
       },
     });
-    console.log("added")
 
     // Generate JWT token for the newly created user
     const token = jwt.sign(

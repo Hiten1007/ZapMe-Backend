@@ -13,15 +13,13 @@ export const showProfile = async (req : AuthenticatedRequest, res : Response) =>
         const userInfo = await prisma.user.findFirst({
             where :{ id : user?.userId}
         })
-        console.log("yes")
         res.status(200).json({
             userInfo
         })
-        console.log("yes")
     }
     catch(error){
         res.status(500).json({
-            messgae:"Internal server error"
+            message:"Internal server error"
         })
     }
    
@@ -81,7 +79,6 @@ export const updatePhoto = async (req: AuthenticatedRequest, res: Response) => {
       res.status(400).json({ message: 'No file uploaded' });
       return;
     }
-    console.log("fileis")
 
     // Convert the file buffer to a base64-encoded string
     const base64Image = req.file.buffer.toString('base64');
@@ -119,16 +116,13 @@ export const updatePhoto = async (req: AuthenticatedRequest, res: Response) => {
 export const showOtherProfile = async (req : AuthenticatedRequest, res : Response) => {
     try{
         const userId = parseInt(req.params.userid);
-        console.log(userId)
 
         const userInfo = await prisma.user.findFirst({
             where :{ id : userId}
         })
-        console.log("yes")
         res.status(200).json({
             userInfo
         })
-        console.log("yes")
     }
     catch(error){
         res.status(500).json({

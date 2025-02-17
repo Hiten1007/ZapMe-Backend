@@ -3,14 +3,11 @@ import app from './app'; // Import the configured app
 import http from 'http'
 import { WebSocketServer } from 'ws'
 import { handleWebSocketConnection } from './websockets/websocket';
-import { AuthenticatedRequest, AuthPayload } from './interfaces'; 
 import { Request } from 'express'
 dotenv.config(); // Load environment variables
 
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
-
-
 
 export const wss = new WebSocketServer({ server });
 

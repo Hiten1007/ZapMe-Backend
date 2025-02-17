@@ -1,8 +1,5 @@
-import { Chat, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-
+import { Chat } from "@prisma/client";
+import prisma from "../prisma/config";
 
 export const register = async (data: any, senderId: number): Promise<Chat> => {
     console.log(data)
@@ -17,7 +14,6 @@ export const register = async (data: any, senderId: number): Promise<Chat> => {
   // Note: This query might need refinement to ensure it includes both users.
   let chat = await prisma.chat.findFirst({
     where: {
-      isGroup: false,
       AND: [
         {
           users: {
@@ -49,7 +45,6 @@ export const register = async (data: any, senderId: number): Promise<Chat> => {
     chat = await prisma.chat.create({
       data: {
         chatId: `${senderId}-${receiverId}`,
-        isGroup: false,
         users: {
           create: [
             { userId: senderId },
