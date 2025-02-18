@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../prisma/config'
 import { Request, Response } from 'express'
 import { AuthenticatedRequest } from '../interfaces'
-
-const prisma = new PrismaClient()
 
 export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
     try {

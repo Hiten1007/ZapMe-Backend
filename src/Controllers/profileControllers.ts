@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../prisma/config'
 import {  Response} from 'express'
 import { AuthenticatedRequest } from '../interfaces'
 import { updateUserInfoSchema } from '../schemas/updateUserInfo'
 import axios from 'axios'
-
-const prisma = new PrismaClient()
 
 export const showProfile = async (req : AuthenticatedRequest, res : Response) => {
     try{
@@ -107,7 +105,6 @@ export const updatePhoto = async (req: AuthenticatedRequest, res: Response) => {
 
     res.status(200).json({ updatedUser });
   } catch (error) {
-    console.error("Error updating profile photo:", error);
     res.status(500).json({ message: "Internal Server Error" });
     return;
   }

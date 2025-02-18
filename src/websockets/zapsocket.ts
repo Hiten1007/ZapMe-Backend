@@ -2,7 +2,7 @@ import { Chat } from "@prisma/client";
 import prisma from "../prisma/config";
 
 export const register = async (data: any, senderId: number): Promise<Chat> => {
-    console.log(data)
+
   const receiverId = data;
 
   if (senderId === receiverId) {

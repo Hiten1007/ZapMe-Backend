@@ -8,7 +8,6 @@ import { newMessage, register } from './zapsocket';
 import prisma from '../prisma/config';
 
 export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) => {
-  console.log("WebSocket upgrade request received.");
 
   const cookieHeader = req.headers.cookie;
   if (!cookieHeader) {
@@ -41,7 +40,6 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
 
   const senderId = decoded.userId;
   (ws as any).userId = senderId;
-  console.log(`Authenticated WebSocket for user ${senderId}`);
 
   ws.on('message', async (data) => {
     try {
@@ -49,13 +47,9 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
       const message = JSON.parse(messageStr);
 
       let chat: Chat | null = null;
-      wss.clients.forEach((client: WebSocket) => {
-        console.log("Connected client:", (client as any).userId);
-      });
       switch (message.type) {
         case "register":
           chat = await register(parseInt(message.userId), senderId);
-          console.log(chat);
           ws.send(JSON.stringify({ type: 'register', id: chat.id }));
           break;
 
@@ -85,9 +79,9 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
           
                 // Send to the sender
                 if (String((client as any).userId) === String(senderId)) {
-                  console.log("Sending message to sender:", senderId);
                   client.send(JSON.stringify({
                     type: 'onemessage',
+                    senderId : 'sender',
                     message: newmsg
                   }));
                 }
@@ -95,6 +89,7 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
                 if (String((client as any).userId) === String(message.userId)) {
                   client.send(JSON.stringify({
                     type: 'onemessage',
+                    senderId : senderId,
                     message: newmsg
                   }));
                 }
@@ -111,7 +106,4 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
     }
   });
 
-  ws.on('close', () => {
-    console.log(`WebSocket connection closed for user ${senderId}`);
-  });
 };

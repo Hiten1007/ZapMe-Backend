@@ -11,7 +11,6 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
      return;
   }
 
-
   try {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as AuthPayload;

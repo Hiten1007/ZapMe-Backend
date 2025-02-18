@@ -23,12 +23,9 @@ wss.on('connection', (ws, req) => {
 
 const startServer = async () => {
   try {
-    console.log('Connected to the database');  // This will need to be connected to the database before running
 
     // Start the Express server
-    server.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
+    server.listen(PORT);
   } catch (err) {
     console.error('Failed to start the server:', err);
     process.exit(1);

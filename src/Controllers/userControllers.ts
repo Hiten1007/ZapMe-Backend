@@ -1,12 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma/config'
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { userSignupSchema } from "../schemas/userSignUp";
 import { userLogInSchema } from "../schemas/userLogIn"
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
-const prisma = new PrismaClient();
+import { AuthenticatedRequest } from '../interfaces';
 
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
@@ -30,10 +29,17 @@ const validatedData = userSignupSchema.parse(req.body);
 
     // Generate JWT token for the newly created user
     const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },  // Use newUser here
+      { userId: newUser.id, email: newUser.email },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: "24h" }
     );
+
+    res.cookie('token', token, {
+      httpOnly: true, // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      sameSite: process.env.NODE_ENV !== 'production' ?  'lax' : 'none', // Protect against CSRF attacks
+      maxAge: 24 * 60 * 60 * 1000, // Token expiration (24 hours in ms)
+    });
 
     // Respond with success and the token
     res.status(201).json({
@@ -58,10 +64,8 @@ const validatedData = userSignupSchema.parse(req.body);
 
 export const logIn = async (req: Request, res: Response) => {
   try {
-    // Validate the incoming data
     const validatedData = userLogInSchema.parse(req.body);
 
-    // Query the user by email or username
     const user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -71,17 +75,16 @@ export const logIn = async (req: Request, res: Response) => {
       },
     });
 
-    // If no user is found, return an error
     if (!user) {
-       res.status(404).json({ message: "User not found" });
-       throw new Error("no user found");
+      res.status(404).json({ message: "User not found" });  // ✅ Use return
+      return;
     }
 
     // Verify the password
     const isPasswordValid = await bcrypt.compare(validatedData.password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ message: "Invalid password" });
-      
+      res.status(401).json({ message: "Invalid password" }); // ✅ Use return
+      return;
     }
 
     // Generate a JWT token
@@ -92,15 +95,13 @@ export const logIn = async (req: Request, res: Response) => {
     );
 
     res.cookie('token', token, {
-      httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV !== 'production', // Use secure cookies in production
-      sameSite: 'lax', // Protect against CSRF attacks
-      maxAge: 24 * 60 * 60 * 1000, // Token expiration (24 hours in ms)
- 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: process.env.NODE_ENV !== 'production' ? 'lax' : 'none',
     });
 
     // Respond with success
-     res.status(200).json({
+    res.status(200).json({  // ✅ Use return
       message: "Login successful",
       user: {
         id: user.id,
@@ -109,19 +110,28 @@ export const logIn = async (req: Request, res: Response) => {
         name: user.name,
       },
     });
+
   } catch (error) {
     if (error instanceof z.ZodError) {
-      // Zod validation error
-       res.status(400).json({ errors: error.errors });
+       res.status(400).json({ errors: error.errors }); // ✅ Use return
+       return;
     }
 
-    if (error instanceof Error && error.message === "no user found") {
-      // Custom application error
-      res.status(404).json({ message: error.message });
-    }
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal Server Error" }); // ✅ Use return
+  }
+};
 
-    // Catch-all for other errors
-    console.error("Unexpected error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+export const logOut = async (req : AuthenticatedRequest, res:Response) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+    const token = req.cookies.token;
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Logout failed" });
   }
 };
