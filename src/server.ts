@@ -4,7 +4,9 @@ import http from 'http'
 import { WebSocketServer } from 'ws'
 import { handleWebSocketConnection } from './websockets/websocket';
 import { Request } from 'express'
-dotenv.config(); // Load environment variables
+if (!process.env.RAILWAY_ENV) {
+  dotenv.config();
+} // Load environment variables
 
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
@@ -24,8 +26,10 @@ wss.on('connection', (ws, req) => {
 const startServer = async () => {
   try {
 
-    // Start the Express server
-    server.listen(PORT);
+    
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   } catch (err) {
     console.error('Failed to start the server:', err);
     process.exit(1);
