@@ -35,11 +35,13 @@ const validatedData = userSignupSchema.parse(req.body);
     );
 
     res.cookie('token', token, {
-      httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-      sameSite: process.env.NODE_ENV !== 'production' ?  'lax' : 'none', // Protect against CSRF attacks
-      maxAge: 24 * 60 * 60 * 1000, // Token expiration (24 hours in ms)
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: process.env.NODE_ENV !== 'production' ? 'lax' : 'none',
+      partitioned:true,
+      maxAge: 1000 * 60 * 60 * 24,
     });
+
 
     // Respond with success and the token
     res.status(201).json({
@@ -98,6 +100,8 @@ export const logIn = async (req: Request, res: Response) => {
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production', 
       sameSite: process.env.NODE_ENV !== 'production' ? 'lax' : 'none',
+      partitioned:true,
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
     // Respond with success
