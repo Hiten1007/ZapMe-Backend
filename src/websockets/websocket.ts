@@ -45,7 +45,7 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
       const messageStr = typeof data === 'string' ? data : data.toString();
       const message = JSON.parse(messageStr);
 
-      let chat: Chat | null = null;
+      let chat = null;
       switch (message.type) {
         case "register":
           chat = await register(parseInt(message.userId), senderId);
