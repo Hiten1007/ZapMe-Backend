@@ -20,6 +20,17 @@ wss.on('connection', (ws, req) => {
   handleWebSocketConnection(ws, req as Request);
 });
 
+server.on('upgrade', (request, socket, head) => {
+  // Check if the request origin is allowed
+  const origin = request.headers.origin;
+  if (origin === 'https://zap-me-frontend.vercel.app') {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy(); // Reject the connection
+  }
+});
 
 // Start the server
 
