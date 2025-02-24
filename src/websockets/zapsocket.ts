@@ -1,7 +1,7 @@
-import { type Chat } from "@prisma/client";
+
 import prisma from "../prisma/config";
 
-export const register = async (data: any, senderId: number): Promise<Chat> => {
+export const register = async (data: any, senderId: number) => {
 
   const receiverId = data;
 
@@ -62,7 +62,7 @@ export const register = async (data: any, senderId: number): Promise<Chat> => {
   return chat;
 };
 
-export const newMessage = async (chat: Chat, senderId: number, content: string) => {
+export const newMessage = async (chat:any, senderId: number, content: string) => {
   try{const newMsg = await prisma.message.create({
     data: {
       content,

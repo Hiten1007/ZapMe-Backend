@@ -38,12 +38,12 @@ export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
         
         // Filter out the current user from the users array and return only the other user
         //@ts-ignore
-        const formattedChats = chats.map(chat => ({
+        const formattedChats = (chats as any).map((chat :any) => ({
             ...chat,
             //@ts-ignore
-            otherUser: chat.users
-                .map(u => u.user)  // Extract user object
-                .find(u => u.id !== user?.userId)  // Get the other user
+            otherUser: (chat.users as any)
+                .map((u:any) => u.user)  // Extract user object
+                .find((u:any) => u.id !== user?.userId)  // Get the other user
         }));
         res.status(201).json(formattedChats)
     }

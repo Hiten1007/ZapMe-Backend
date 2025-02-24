@@ -1,7 +1,6 @@
 import { WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import jwt from 'jsonwebtoken';
-import { type Chat } from '@prisma/client';
 import { AuthPayload } from '../interfaces';
 import { wss } from '../server';
 import { newMessage, register } from './zapsocket';
