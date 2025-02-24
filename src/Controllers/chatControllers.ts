@@ -37,8 +37,10 @@ export const displayZaps = async (req: AuthenticatedRequest, res: Response) => {
         });
         
         // Filter out the current user from the users array and return only the other user
+        //@ts-ignore
         const formattedChats = chats.map(chat => ({
             ...chat,
+            //@ts-ignore
             otherUser: chat.users
                 .map(u => u.user)  // Extract user object
                 .find(u => u.id !== user?.userId)  // Get the other user

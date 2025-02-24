@@ -1,4 +1,4 @@
-import { Chat } from "@prisma/client";
+import { type Chat } from "@prisma/client";
 import prisma from "../prisma/config";
 
 export const register = async (data: any, senderId: number): Promise<Chat> => {
@@ -34,7 +34,7 @@ export const register = async (data: any, senderId: number): Promise<Chat> => {
   });
 
   // If chat exists but doesn't include the receiver, add them.
-  if (chat && !chat.users.some(u => u.userId === receiverId)) {
+  if (chat && !chat.users.some((u : any )=> u.userId === receiverId)) {
     await prisma.chatUser.create({
       data: { chatId: chat.id, userId: receiverId }
     });
