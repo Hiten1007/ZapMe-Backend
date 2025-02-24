@@ -13,8 +13,8 @@ app.use(cookieParser())
 
 
 const corsOptions = {
-    origin: 'https://zap-me-frontend.vercel.app/', // Replace with your frontend's origin
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    origin: 'https://zap-me-frontend.vercel.app', // Replace with your frontend's origin
+    credentials: true // llow credentials (cookies, authorization headers, etc.)
   };
 
 app.use(cors(corsOptions))
