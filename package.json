@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "prisma generate --schema=src/prisma/schema.prisma && tsc-watch --onSuccess \"node dist/server.js\""
-  },
+  "generate": "prisma generate --schema=src/prisma/schema.prisma",
+  "migrate": "prisma migrate deploy --schema=src/prisma/schema.prisma",
+  "start": "npm run migrate && npm run generate && tsc-watch --onSuccess \"node dist/server.js\""
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.5.0",
     "@types/websocket": "^1.0.10",
     "@types/ws": "^8.5.14",
     "axios": "^1.7.9",
@@ -36,7 +37,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/multer": "^1.4.12",
-    "prisma": "^6.3.0",
+    "prisma": "^6.5.0",
     "tsc-watch": "^6.2.1"
   }
 }

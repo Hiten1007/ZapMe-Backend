@@ -38,7 +38,7 @@ const validatedData = userSignupSchema.parse(req.body);
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production', 
       sameSite: process.env.NODE_ENV !== 'production' ? 'lax' : 'none',
-      partitioned:true,
+      partitioned:false,
       maxAge: 1000 * 60 * 60 * 24,
     });
 
@@ -100,7 +100,7 @@ export const logIn = async (req: Request, res: Response) => {
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production', 
       sameSite: process.env.NODE_ENV !== 'production' ? 'lax' : 'none',
-      partitioned:true,
+      partitioned:false,
       maxAge: 1000 * 60 * 60 * 24,
     });
 
@@ -132,7 +132,7 @@ export const logOut = async (req : AuthenticatedRequest, res:Response) => {
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production', 
       sameSite: process.env.NODE_ENV !== 'production' ? 'lax' : 'none',
-      partitioned:true,
+      partitioned:false,
       maxAge: 1000 * 60 * 60 * 24,
     });
     const token = req.cookies.token;

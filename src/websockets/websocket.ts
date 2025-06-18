@@ -72,11 +72,9 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
           
             const newmsg = await newMessage(chat, senderId, message.content);
           
-            // Broadcast the message to both the sender and the recipient
             wss.clients.forEach((client: WebSocket) => {
               if (client.readyState === WebSocket.OPEN) {
           
-                // Send to the sender
                 if (String((client as any).userId) === String(senderId)) {
                   client.send(JSON.stringify({
                     type: 'onemessage',
@@ -84,7 +82,6 @@ export const handleWebSocketConnection = (ws: WebSocket, req: IncomingMessage) =
                     message: newmsg
                   }));
                 }
-                // Send to the recipient
                 if (String((client as any).userId) === String(message.userId)) {
                   client.send(JSON.stringify({
                     type: 'onemessage',
