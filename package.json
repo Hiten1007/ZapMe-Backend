@@ -6,8 +6,8 @@
   "generate": "prisma generate --schema=src/prisma/schema.prisma",
   "migrate": "prisma migrate deploy --schema=src/prisma/schema.prisma",
   "build": "tsc",
-  "start": "node dist/server.js",
-  "dev": "ts-node-dev --respawn src/server.ts"
+  "start": "npm run generate && node dist/server.js",
+  "postinstall": "npm run generate"
 },
   "keywords": [],
   "author": "",
