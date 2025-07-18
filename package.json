@@ -5,7 +5,9 @@
   "scripts": {
   "generate": "prisma generate --schema=src/prisma/schema.prisma",
   "migrate": "prisma migrate deploy --schema=src/prisma/schema.prisma",
-  "start": "npm run migrate && npm run generate && tsc-watch --onSuccess \"node dist/server.js\""
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "dev": "ts-node-dev --respawn src/server.ts"
 },
   "keywords": [],
   "author": "",
